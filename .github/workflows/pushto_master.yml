@@ -1,0 +1,63 @@
+name: Scrape Heroku & Push to Netlify
+
+on:
+
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+# ┌─────────────────────────────────────┐
+# │        ENVIRONMENT VARIABLES        │
+# └─────────────────────────────────────┘
+env:
+  scrapetarget: 'https://ioroot.herokuapp.com/'
+
+  # ┌─────────────────────────────────────┐
+  # │          SECRETS REQUIRED           │
+  # └─────────────────────────────────────┘
+  #
+
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+
+    # RUN IF -test is NOT in commit message
+    # ---------------------------------------------------------
+    if: "!contains(github.event.head_commit.message, '-nodeploy')"
+    # ---------------------------------------------------------
+
+    steps:
+
+      - uses: actions/checkout@v2
+
+      # WGET all pages on Heroky as static assets to then push to Netlify
+      # https://dashdash.io/1/wget#--recursive
+      - name: WGET
+        continue-on-error: true
+        run: |
+            wget --recursive --directory-prefix=dist/ --content-disposition --no-host-directories --adjust-extension --tries=2 --no-parent --convert-links --no-check-certificate ${{ env.scrapetarget }}
+
+
+
+      - name: Rename files
+        continue-on-error: true
+        run: |          
+            mv ./.github/workflows/scripts/remove_query_strings.sh ./dist
+            cd dist
+            ./remove_query_strings.sh
+
+
+
+      - name: Deploy to Netlify
+        uses: nwtgck/actions-netlify@v1.2
+        with:
+          publish-dir: './dist'
+          production-branch: master        
+          deploy-message: "Deploy from GitHub Actions"
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        timeout-minutes: 2
