@@ -2,9 +2,9 @@ name: Scrape Heroku & Push to Netlify
 
 on:
 
-  push:
-    branches:
-      - master
+  # push:
+  #   branches:
+  #     - master
   workflow_dispatch:
 
 # ┌─────────────────────────────────────┐

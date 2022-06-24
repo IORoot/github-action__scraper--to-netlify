@@ -1,8 +1,13 @@
 # Scrape site and push to Netlify
 
-## The Basic version.
+```mermaid
+flowchart LR
+    Website["Target Website"] --scrape--> Github["Github Action"]
+    Github --"Static version"--> Netlify
+```
 
-Website --> Github Action --> Netlify.
+
+## What it does.
 
 The basic steps are:
 
@@ -21,7 +26,7 @@ You can get both from netlify.
 
 ## Run
 
-The action will run on push to master branch. If you add `-test` in the commit message, the action will disable.
+The action will run manually through the github GUI. If you add `-test` in the commit message, the action will disable.
 
 ## Heroku.
 
